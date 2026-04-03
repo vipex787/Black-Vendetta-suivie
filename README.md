@@ -1,1 +1,751 @@
-# Black-Vendetta-suivie
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Black vendetta suivie</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #f3f3f3;
+            background: radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 30%), linear-gradient(180deg, #060606 0%, #101010 35%, #1b1b1b 60%, #0a0a0a 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 18px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(38,38,38,0.96), rgba(15,15,15,0.96));
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 14px 35px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.45);
+            backdrop-filter: blur(6px);
+        }
+
+        .login-card {
+            max-width: 500px;
+            margin: 40px auto 0;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(160deg, rgba(34,34,34,0.98), rgba(10,10,10,0.98));
+            box-shadow: 0 18px 50px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -1px 0 rgba(0,0,0,0.6);
+        }
+
+        .logo-box {
+            width: 115px;
+            height: 115px;
+            border-radius: 24px;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #5a5a5a, #1b1b1b 40%, #7a7a7a 52%, #222 65%, #0d0d0d);
+            border: 1px solid rgba(255,255,255,0.16);
+            box-shadow: inset 0 2px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.6), 0 10px 30px rgba(0,0,0,0.45);
+            overflow: hidden;
+            padding: 6px;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
+            display: block;
+        }
+
+        h1, h2, h3, p {
+            margin-top: 0;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .muted {
+            color: #b9b9b9;
+            font-size: 14px;
+        }
+
+        .title-metal {
+            background: linear-gradient(180deg, #ffffff, #c8c8c8 45%, #7b7b7b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            letter-spacing: 0.6px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 14px;
+            border-radius: 14px;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        input {
+            border: 1px solid rgba(255,255,255,0.10);
+            background: linear-gradient(180deg, rgba(9,9,9,0.95), rgba(28,28,28,0.95));
+            color: white;
+            outline: none;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -2px 8px rgba(0,0,0,0.45);
+        }
+
+            input::placeholder {
+                color: #9b9b9b;
+            }
+
+            input:focus {
+                border-color: rgba(255,255,255,0.22);
+                box-shadow: 0 0 0 2px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -2px 8px rgba(0,0,0,0.45);
+            }
+
+        button {
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #f5f5f5;
+            background: linear-gradient(180deg, #7c7c7c 0%, #464646 20%, #202020 55%, #0f0f0f 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -2px 4px rgba(0,0,0,0.45), 0 8px 20px rgba(0,0,0,0.35);
+            transition: transform .12s ease, opacity .12s ease;
+        }
+
+            button:active {
+                transform: scale(0.985);
+            }
+
+            button.secondary {
+                background: linear-gradient(180deg, #4f4f4f 0%, #2b2b2b 45%, #111111 100%);
+            }
+
+            button.danger {
+                background: linear-gradient(180deg, #a83e3e 0%, #7e2121 35%, #450f0f 100%);
+            }
+
+            button:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .topbar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 13px;
+            margin-right: 6px;
+            margin-top: 6px;
+            color: #f1f1f1;
+            background: linear-gradient(180deg, rgba(85,85,85,0.95), rgba(28,28,28,0.95));
+            border: 1px solid rgba(255,255,255,0.10);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .activity-btn {
+            min-height: 78px;
+            font-size: 15px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: linear-gradient(180deg, #575757 0%, #2d2d2d 20%, #181818 60%, #0c0c0c 100%);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: linear-gradient(180deg, rgba(19,19,19,0.98), rgba(35,35,35,0.95));
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -2px 8px rgba(0,0,0,0.35);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        th, td {
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding: 10px 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: #cecece;
+            font-weight: bold;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+            .row > * {
+                flex: 1;
+                min-width: 130px;
+            }
+
+        .title-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .empty {
+            text-align: center;
+            color: #a9a9a9;
+            padding: 20px 10px;
+            border: 1px dashed rgba(255,255,255,0.12);
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+
+        .login-status {
+            margin-top: 12px;
+            min-height: 22px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .status-loading {
+            color: #d8d8d8;
+        }
+
+        .status-error {
+            color: #ff8f8f;
+            font-weight: bold;
+        }
+
+        .status-ok {
+            color: #8fe29f;
+            font-weight: bold;
+        }
+
+        @media (max-width: 640px) {
+            .login-card {
+                margin-top: 20px;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 12px;
+                padding: 10px;
+                margin-bottom: 10px;
+                background: rgba(10,10,10,0.45);
+            }
+
+            td {
+                border: none;
+                padding: 6px 0;
+            }
+
+                td::before {
+                    content: attr(data-label) " : ";
+                    font-weight: bold;
+                    color: #cfcfcf;
+                }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div id="loginView" class="card login-card">
+            <div class="logo-box">
+                <img src="IMG_1179.png" alt="Logo Black Vendetta" class="logo-img">
+            </div>
+            <h1 class="center title-metal">Black Vendetta suivie</h1>
+            <p class="muted center">Connexion sécurisée des employés</p>
+
+            <input id="loginUsername" type="text" placeholder="Nom d'utilisateur" />
+            <input id="loginPassword" type="password" placeholder="ID" />
+
+            <button id="loginBtn" onclick="login()">Se connecter</button>
+
+            <div id="loginStatus" class="login-status"></div>
+        </div>
+
+        <div id="appView" class="hidden">
+            <div class="card">
+                <div class="topbar">
+                    <div>
+                        <h2 id="welcomeTitle" class="title-metal" style="margin-bottom: 6px;">Bienvenue</h2>
+                        <div id="userBadges"></div>
+                    </div>
+                    <div style="min-width: 150px;">
+                        <button class="secondary" onclick="logout()">Déconnexion</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="employeeView" class="hidden">
+                <div class="card">
+                    <h3 class="title-metal">Déclarer une activité</h3>
+                    <p class="muted">Choisis un bouton, entre la valeur, puis valide.</p>
+                    <div id="activityButtons" class="grid"></div>
+                </div>
+
+                <div id="activityFormCard" class="card hidden">
+                    <div class="title-line">
+                        <h3 id="selectedActivityTitle" class="title-metal">Activité</h3>
+                        <span id="selectedActivityType" class="badge"></span>
+                    </div>
+                    <input id="activityValue" type="number" placeholder="Valeur" />
+                    <input id="activityNote" type="text" placeholder="Note optionnelle" />
+                    <div class="row">
+                        <button onclick="submitActivity()">Valider</button>
+                        <button class="secondary" onclick="cancelActivity()">Annuler</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="title-metal">Mes statistiques</h3>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="muted">Total argent</div>
+                            <div id="myMoneyTotal" style="font-size:24px;font-weight:bold;">0$</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="muted">Total quantité</div>
+                            <div id="myQuantityTotal" style="font-size:24px;font-weight:bold;">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="muted">Nombre d’actions</div>
+                            <div id="myActionCount" style="font-size:24px;font-weight:bold;">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="title-metal">Mon historique</h3>
+                    <div id="myHistory"></div>
+                </div>
+            </div>
+
+            <div id="adminView" class="hidden">
+                <div class="card">
+                    <div class="title-line">
+                        <div>
+                            <h3 class="title-metal">Administration</h3>
+                            <p class="muted">Vue globale des employés et des déclarations.</p>
+                        </div>
+                        <div style="min-width: 180px;">
+                            <button class="danger" onclick="resetAllData()">Reset total</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="title-metal">Résumé global</h3>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="muted">Argent total</div>
+                            <div id="globalMoneyTotal" style="font-size:24px;font-weight:bold;">0$</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="muted">Quantité totale</div>
+                            <div id="globalQuantityTotal" style="font-size:24px;font-weight:bold;">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="muted">Total actions</div>
+                            <div id="globalActionCount" style="font-size:24px;font-weight:bold;">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="title-metal">Employés</h3>
+                    <div id="adminEmployeesTable"></div>
+                </div>
+
+                <div class="card">
+                    <h3 class="title-metal">Historique complet</h3>
+                    <div id="adminAllHistory"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const USERS = [
+            { username: 'pablo', password: '230031', fullName: 'Pablo Mendoza', gameId: '230031', role: 'Membre' },
+            { username: 'rayan', password: '202052', fullName: 'rayan saintdenis', gameId: '202052', role: 'Membre' },
+            { username: 'keurtys', password: '95037', fullName: 'keurtys andersonn', gameId: '95037', role: 'Membre' },
+            { username: 'vipex', password: '202633', fullName: 'habdelkader saintdenis', gameId: '202633', role: 'admin' }
+        ];
+
+        const ACTIVITIES = [
+            { key: 'superette', label: 'Superette', type: 'money', unit: '$' },
+            { key: 'gofast', label: 'Go fast', type: 'money', unit: '$' },
+            { key: 'recolte_feuilles', label: 'Récolte feuilles', type: 'quantity', unit: 'u' },
+            { key: 'recolte_ecorce', label: 'Récolte écorce', type: 'quantity', unit: 'u' },
+            { key: 'vente de drogue', label: 'Vente de drogue', type: 'money', unit: '$' }
+        ];
+
+        const STORAGE_KEY = 'Vipex_787';
+
+        let state = loadState();
+        let currentUser = null;
+        let selectedActivity = null;
+
+        function loadState() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (!parsed.entries) parsed.entries = [];
+                    return parsed;
+                } catch (e) { }
+            }
+            return { entries: [] };
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function setLoginStatus(message, type = '') {
+            const box = document.getElementById('loginStatus');
+            box.className = 'login-status';
+            if (type) box.classList.add(type);
+            box.textContent = message;
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value.trim();
+            const btn = document.getElementById('loginBtn');
+
+            setLoginStatus('Validation...', 'status-loading');
+            btn.disabled = true;
+            btn.textContent = 'Validation...';
+
+            setTimeout(() => {
+                const user = USERS.find(
+                    u => u.username.toLowerCase() === username && u.password === password
+                );
+
+                if (!user) {
+                    setLoginStatus(
+                        'Code incorrect, veuillez contacter Vipex sur Discord pour vos code.',
+                        'status-error'
+                    );
+                    btn.disabled = false;
+                    btn.textContent = 'Se connecter';
+                    return;
+                }
+
+                currentUser = user;
+                setLoginStatus('Connexion validée.', 'status-ok');
+
+                document.getElementById('loginView').classList.add('hidden');
+                document.getElementById('appView').classList.remove('hidden');
+
+                btn.disabled = false;
+                btn.textContent = 'Se connecter';
+
+                renderApp();
+            }, 900);
+        }
+
+        function logout() {
+            currentUser = null;
+            selectedActivity = null;
+
+            document.getElementById('appView').classList.add('hidden');
+            document.getElementById('employeeView').classList.add('hidden');
+            document.getElementById('adminView').classList.add('hidden');
+            document.getElementById('activityFormCard').classList.add('hidden');
+            document.getElementById('loginView').classList.remove('hidden');
+
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+
+            setLoginStatus('');
+        }
+
+        function renderApp() {
+            if (!currentUser) return;
+
+            document.getElementById('welcomeTitle').textContent = `Bienvenue, ${currentUser.fullName}`;
+            document.getElementById('userBadges').innerHTML = `
+            <span class="badge">Nom : ${currentUser.fullName}</span>
+            <span class="badge">ID : ${currentUser.gameId}</span>
+            <span class="badge">Rôle : ${currentUser.role}</span>
+          `;
+
+            if (currentUser.role === 'admin') {
+                document.getElementById('employeeView').classList.add('hidden');
+                document.getElementById('adminView').classList.remove('hidden');
+                renderAdmin();
+            } else {
+                document.getElementById('adminView').classList.add('hidden');
+                document.getElementById('employeeView').classList.remove('hidden');
+                renderEmployee();
+            }
+        }
+
+        function renderEmployee() {
+            const container = document.getElementById('activityButtons');
+            container.innerHTML = '';
+
+            ACTIVITIES.forEach(activity => {
+                const btn = document.createElement('button');
+                btn.className = 'activity-btn';
+                btn.textContent = activity.label;
+                btn.onclick = () => openActivityForm(activity.key);
+                container.appendChild(btn);
+            });
+
+            renderEmployeeStats();
+            renderEmployeeHistory();
+        }
+
+        function openActivityForm(key) {
+            selectedActivity = ACTIVITIES.find(a => a.key === key);
+            if (!selectedActivity) return;
+
+            document.getElementById('activityFormCard').classList.remove('hidden');
+            document.getElementById('selectedActivityTitle').textContent = selectedActivity.label;
+            document.getElementById('selectedActivityType').textContent =
+                selectedActivity.type === 'money' ? 'Argent' : 'Quantité';
+
+            document.getElementById('activityValue').value = '';
+            document.getElementById('activityNote').value = '';
+            document.getElementById('activityValue').placeholder =
+                selectedActivity.type === 'money' ? 'Montant' : 'Quantité';
+
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function cancelActivity() {
+            selectedActivity = null;
+            document.getElementById('activityFormCard').classList.add('hidden');
+        }
+
+        function submitActivity() {
+            if (!currentUser || !selectedActivity) return;
+
+            const value = Number(document.getElementById('activityValue').value);
+            const note = document.getElementById('activityNote').value.trim();
+
+            if (!value || value <= 0) {
+                alert('Entre une valeur correcte.');
+                return;
+            }
+
+            state.entries.unshift({
+                id: Date.now().toString(),
+                username: currentUser.username,
+                fullName: currentUser.fullName,
+                gameId: currentUser.gameId,
+                activityKey: selectedActivity.key,
+                activityLabel: selectedActivity.label,
+                type: selectedActivity.type,
+                unit: selectedActivity.unit,
+                value: value,
+                note: note,
+                createdAt: new Date().toLocaleString('fr-FR')
+            });
+
+            saveState();
+            cancelActivity();
+            renderEmployeeStats();
+            renderEmployeeHistory();
+        }
+
+        function renderEmployeeStats() {
+            const mine = state.entries.filter(e => e.username === currentUser.username);
+            const moneyTotal = mine.filter(e => e.type === 'money').reduce((sum, e) => sum + e.value, 0);
+            const quantityTotal = mine.filter(e => e.type === 'quantity').reduce((sum, e) => sum + e.value, 0);
+
+            document.getElementById('myMoneyTotal').textContent = formatMoney(moneyTotal);
+            document.getElementById('myQuantityTotal').textContent = quantityTotal;
+            document.getElementById('myActionCount').textContent = mine.length;
+        }
+
+        function renderEmployeeHistory() {
+            const mine = state.entries.filter(e => e.username === currentUser.username);
+
+            if (mine.length === 0) {
+                document.getElementById('myHistory').innerHTML =
+                    `<div class="empty">Aucune activité pour le moment.</div>`;
+                return;
+            }
+
+            let html = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Activité</th>
+                  <th>Valeur</th>
+                  <th>Date</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+
+            mine.forEach(entry => {
+                html += `
+              <tr>
+                <td data-label="Activité">${entry.activityLabel}</td>
+                <td data-label="Valeur">${formatEntryValue(entry)}</td>
+                <td data-label="Date">${entry.createdAt}</td>
+                <td data-label="Note">${entry.note || '-'}</td>
+              </tr>
+            `;
+            });
+
+            html += `</tbody></table>`;
+            document.getElementById('myHistory').innerHTML = html;
+        }
+
+        function renderAdmin() {
+            const entries = state.entries;
+            const employeeUsers = USERS.filter(u => u.role === 'Membre');
+
+            const globalMoney = entries.filter(e => e.type === 'money').reduce((sum, e) => sum + e.value, 0);
+            const globalQuantity = entries.filter(e => e.type === 'quantity').reduce((sum, e) => sum + e.value, 0);
+
+            document.getElementById('globalMoneyTotal').textContent = formatMoney(globalMoney);
+            document.getElementById('globalQuantityTotal').textContent = globalQuantity;
+            document.getElementById('globalActionCount').textContent = entries.length;
+
+            let employeesHtml = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>ID</th>
+                  <th>Argent</th>
+                  <th>Quantité</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+
+            employeeUsers.forEach(user => {
+                const userEntries = entries.filter(e => e.username === user.username);
+                const money = userEntries.filter(e => e.type === 'money').reduce((sum, e) => sum + e.value, 0);
+                const quantity = userEntries.filter(e => e.type === 'quantity').reduce((sum, e) => sum + e.value, 0);
+
+                employeesHtml += `
+              <tr>
+                <td data-label="Nom">${user.fullName}</td>
+                <td data-label="ID">${user.gameId}</td>
+                <td data-label="Argent">${formatMoney(money)}</td>
+                <td data-label="Quantité">${quantity}</td>
+                <td data-label="Actions">${userEntries.length}</td>
+              </tr>
+            `;
+            });
+
+            employeesHtml += `</tbody></table>`;
+            document.getElementById('adminEmployeesTable').innerHTML = employeesHtml;
+
+            if (entries.length === 0) {
+                document.getElementById('adminAllHistory').innerHTML =
+                    `<div class="empty">Aucune déclaration enregistrée.</div>`;
+                return;
+            }
+
+            let historyHtml = `
+            <table>
+              <thead>
+                <tr>
+                  <th>Employé</th>
+                  <th>ID</th>
+                  <th>Activité</th>
+                  <th>Valeur</th>
+                  <th>Date</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+
+            entries.forEach(entry => {
+                historyHtml += `
+              <tr>
+                <td data-label="Employé">${entry.fullName}</td>
+                <td data-label="ID">${entry.gameId}</td>
+                <td data-label="Activité">${entry.activityLabel}</td>
+                <td data-label="Valeur">${formatEntryValue(entry)}</td>
+                <td data-label="Date">${entry.createdAt}</td>
+                <td data-label="Note">${entry.note || '-'}</td>
+              </tr>
+            `;
+            });
+
+            historyHtml += `</tbody></table>`;
+            document.getElementById('adminAllHistory').innerHTML = historyHtml;
+        }
+
+        function resetAllData() {
+            const ok = confirm('Tu veux vraiment supprimer toutes les déclarations ?');
+            if (!ok) return;
+            state.entries = [];
+            saveState();
+            renderApp();
+        }
+
+        function formatMoney(value) {
+            return Number(value).toLocaleString('fr-FR') + '$';
+        }
+
+        function formatEntryValue(entry) {
+            if (entry.type === 'money') return formatMoney(entry.value);
+            return `${entry.value} ${entry.unit}`;
+        }
+    </script>
+</body>
+</html>
