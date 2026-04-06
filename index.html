@@ -1,3 +1,147 @@
+<?php
+session_start();
+
+$dataFile = __DIR__ . '/data.json';
+
+if (!file_exists($dataFile)) {
+    file_put_contents($dataFile, json_encode(["entries" => []], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+$USERS = [
+    ["username" => "pablo", "password" => "230031", "fullName" => "Pablo Mendoza", "gameId" => "230031", "role" => "Membre"],
+    ["username" => "rayan", "password" => "202052", "fullName" => "rayan saintdenis", "gameId" => "202052", "role" => "Membre"],
+    ["username" => "keurtys", "password" => "95037", "fullName" => "keurtys andersonn", "gameId" => "95037", "role" => "Membre"],
+    ["username" => "leo", "password" => "144131", "fullName" => "leo", "gameId" => "144131", "role" => "Membre"],
+    ["username" => "vipex", "password" => "202633", "fullName" => "habdelkader saintdenis", "gameId" => "202633", "role" => "admin"]
+];
+
+$ACTIVITIES = [
+    ["key" => "superette", "label" => "Superette", "type" => "money", "unit" => "$"],
+    ["key" => "gofast", "label" => "Go fast", "type" => "money", "unit" => "$"],
+    ["key" => "recolte_feuilles", "label" => "Récolte feuilles", "type" => "quantity", "unit" => "u"],
+    ["key" => "recolte_ecorce", "label" => "Récolte écorce", "type" => "quantity", "unit" => "u"],
+    ["key" => "pochon_transfo", "label" => "Pochon transfo", "type" => "quantity", "unit" => "u"],
+    ["key" => "vente_drogue", "label" => "Vente de drogue", "type" => "money", "unit" => "$"]
+];
+
+function readData($file) {
+    $raw = @file_get_contents($file);
+    $data = json_decode($raw, true);
+    if (!$data || !isset($data["entries"])) {
+        $data = ["entries" => []];
+    }
+    return $data;
+}
+
+function writeData($file, $data) {
+    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+}
+
+function jsonResponse($arr) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($arr, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if (isset($_GET['api'])) {
+    $action = $_GET['api'];
+
+    if ($action === 'me') {
+        jsonResponse([
+            "ok" => true,
+            "user" => $_SESSION["user"] ?? null
+        ]);
+    }
+
+    if ($action === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $input = json_decode(file_get_contents("php://input"), true);
+        $username = strtolower(trim($input["username"] ?? ""));
+        $password = trim($input["password"] ?? "");
+
+        foreach ($USERS as $user) {
+            if (strtolower($user["username"]) === $username && $user["password"] === $password) {
+                $_SESSION["user"] = $user;
+                jsonResponse(["ok" => true, "user" => $user]);
+            }
+        }
+
+        jsonResponse(["ok" => false, "message" => "Code incorrect, veuillez contacter Vipex sur Discord pour vos code."]);
+    }
+
+    if ($action === 'logout') {
+        session_destroy();
+        jsonResponse(["ok" => true]);
+    }
+
+    if (!isset($_SESSION["user"])) {
+        jsonResponse(["ok" => false, "message" => "Non connecté."]);
+    }
+
+    if ($action === 'data') {
+        $data = readData($dataFile);
+        jsonResponse([
+            "ok" => true,
+            "entries" => $data["entries"],
+            "user" => $_SESSION["user"],
+            "activities" => $ACTIVITIES
+        ]);
+    }
+
+    if ($action === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $input = json_decode(file_get_contents("php://input"), true);
+        $activityKey = $input["activityKey"] ?? "";
+        $value = floatval($input["value"] ?? 0);
+        $note = trim($input["note"] ?? "");
+
+        if ($value <= 0) {
+            jsonResponse(["ok" => false, "message" => "Valeur incorrecte."]);
+        }
+
+        $selectedActivity = null;
+        foreach ($ACTIVITIES as $a) {
+            if ($a["key"] === $activityKey) {
+                $selectedActivity = $a;
+                break;
+            }
+        }
+
+        if (!$selectedActivity) {
+            jsonResponse(["ok" => false, "message" => "Activité introuvable."]);
+        }
+
+        $data = readData($dataFile);
+        $user = $_SESSION["user"];
+
+        array_unshift($data["entries"], [
+            "id" => (string) round(microtime(true) * 1000),
+            "username" => $user["username"],
+            "fullName" => $user["fullName"],
+            "gameId" => $user["gameId"],
+            "activityKey" => $selectedActivity["key"],
+            "activityLabel" => $selectedActivity["label"],
+            "type" => $selectedActivity["type"],
+            "unit" => $selectedActivity["unit"],
+            "value" => $value,
+            "note" => $note,
+            "createdAt" => date("d/m/Y H:i:s")
+        ]);
+
+        writeData($dataFile, $data);
+        jsonResponse(["ok" => true]);
+    }
+
+    if ($action === 'reset' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (($_SESSION["user"]["role"] ?? "") !== "admin") {
+            jsonResponse(["ok" => false, "message" => "Accès refusé."]);
+        }
+
+        writeData($dataFile, ["entries" => []]);
+        jsonResponse(["ok" => true]);
+    }
+
+    jsonResponse(["ok" => false, "message" => "Action inconnue."]);
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,11 +149,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Black vendetta suivie</title>
     <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -17,13 +157,32 @@
             background: radial-gradient(circle at top, rgba(255,255,255,0.06), transparent 30%), linear-gradient(180deg, #060606 0%, #101010 35%, #1b1b1b 60%, #0a0a0a 100%);
             min-height: 100vh;
         }
+        .side-image {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+        .side-image img {
+            width: 220px;
+            max-height: 85vh;
+            object-fit: contain;
+            display: block;
+            filter: drop-shadow(0 0 20px rgba(0,0,0,0.65));
+        }
+        .side-left-1 { left: 10px; }
+        .side-left-2 { left: 170px; }
+        .side-right-1 { right: 10px; }
 
         .container {
             max-width: 950px;
             margin: 0 auto;
             padding: 18px;
+            position: relative;
+            z-index: 2;
         }
-
         .card {
             background: linear-gradient(145deg, rgba(38,38,38,0.96), rgba(15,15,15,0.96));
             border: 1px solid rgba(255,255,255,0.10);
@@ -33,7 +192,6 @@
             box-shadow: 0 14px 35px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.45);
             backdrop-filter: blur(6px);
         }
-
         .login-card {
             max-width: 500px;
             margin: 40px auto 0;
@@ -42,7 +200,6 @@
             background: linear-gradient(160deg, rgba(34,34,34,0.98), rgba(10,10,10,0.98));
             box-shadow: 0 18px 50px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -1px 0 rgba(0,0,0,0.6);
         }
-
         .logo-box {
             width: 115px;
             height: 115px;
@@ -57,7 +214,6 @@
             overflow: hidden;
             padding: 6px;
         }
-
         .logo-img {
             width: 100%;
             height: 100%;
@@ -65,20 +221,9 @@
             border-radius: 18px;
             display: block;
         }
-
-        h1, h2, h3, p {
-            margin-top: 0;
-        }
-
-        .center {
-            text-align: center;
-        }
-
-        .muted {
-            color: #b9b9b9;
-            font-size: 14px;
-        }
-
+        h1, h2, h3, p { margin-top: 0; }
+        .center { text-align: center; }
+        .muted { color: #b9b9b9; font-size: 14px; }
         .title-metal {
             background: linear-gradient(180deg, #ffffff, #c8c8c8 45%, #7b7b7b 100%);
             -webkit-background-clip: text;
@@ -86,7 +231,6 @@
             font-weight: 900;
             letter-spacing: 0.6px;
         }
-
         input, button {
             width: 100%;
             padding: 14px;
@@ -94,7 +238,6 @@
             margin-top: 10px;
             font-size: 16px;
         }
-
         input {
             border: 1px solid rgba(255,255,255,0.10);
             background: linear-gradient(180deg, rgba(9,9,9,0.95), rgba(28,28,28,0.95));
@@ -102,16 +245,7 @@
             outline: none;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -2px 8px rgba(0,0,0,0.45);
         }
-
-        input::placeholder {
-            color: #9b9b9b;
-        }
-
-        input:focus {
-            border-color: rgba(255,255,255,0.22);
-            box-shadow: 0 0 0 2px rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -2px 8px rgba(0,0,0,0.45);
-        }
-
+        input::placeholder { color: #9b9b9b; }
         button {
             border: none;
             cursor: pointer;
@@ -119,30 +253,10 @@
             color: #f5f5f5;
             background: linear-gradient(180deg, #7c7c7c 0%, #464646 20%, #202020 55%, #0f0f0f 100%);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -2px 4px rgba(0,0,0,0.45), 0 8px 20px rgba(0,0,0,0.35);
-            transition: transform .12s ease, opacity .12s ease;
         }
-
-        button:active {
-            transform: scale(0.985);
-        }
-
-        button.secondary {
-            background: linear-gradient(180deg, #4f4f4f 0%, #2b2b2b 45%, #111111 100%);
-        }
-
-        button.danger {
-            background: linear-gradient(180deg, #a83e3e 0%, #7e2121 35%, #450f0f 100%);
-        }
-
-        button:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
+        button.secondary { background: linear-gradient(180deg, #4f4f4f 0%, #2b2b2b 45%, #111111 100%); }
+        button.danger { background: linear-gradient(180deg, #a83e3e 0%, #7e2121 35%, #450f0f 100%); }
+        .hidden { display: none !important; }
         .topbar {
             display: flex;
             gap: 10px;
@@ -151,7 +265,6 @@
             align-items: center;
             margin-bottom: 12px;
         }
-
         .badge {
             display: inline-block;
             padding: 7px 11px;
@@ -164,26 +277,22 @@
             border: 1px solid rgba(255,255,255,0.10);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
-
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 10px;
         }
-
         .activity-btn {
             min-height: 78px;
             font-size: 15px;
             border: 1px solid rgba(255,255,255,0.10);
             background: linear-gradient(180deg, #575757 0%, #2d2d2d 20%, #181818 60%, #0c0c0c 100%);
         }
-
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 10px;
         }
-
         .stat-box {
             background: linear-gradient(180deg, rgba(19,19,19,0.98), rgba(35,35,35,0.95));
             border: 1px solid rgba(255,255,255,0.10);
@@ -191,37 +300,21 @@
             padding: 12px;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -2px 8px rgba(0,0,0,0.35);
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 12px;
             font-size: 14px;
         }
-
         th, td {
             border-bottom: 1px solid rgba(255,255,255,0.08);
             padding: 10px 8px;
             text-align: left;
             vertical-align: top;
         }
-
-        th {
-            color: #cecece;
-            font-weight: bold;
-        }
-
-        .row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .row > * {
-            flex: 1;
-            min-width: 130px;
-        }
-
+        th { color: #cecece; font-weight: bold; }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .row > * { flex: 1; min-width: 130px; }
         .title-line {
             display: flex;
             justify-content: space-between;
@@ -229,7 +322,6 @@
             gap: 8px;
             flex-wrap: wrap;
         }
-
         .empty {
             text-align: center;
             color: #a9a9a9;
@@ -238,41 +330,27 @@
             border-radius: 12px;
             margin-top: 10px;
         }
-
         .login-status {
             margin-top: 12px;
             min-height: 22px;
             font-size: 14px;
             text-align: center;
         }
+        .status-loading { color: #d8d8d8; }
+        .status-error { color: #ff8f8f; font-weight: bold; }
+        .status-ok { color: #8fe29f; font-weight: bold; }
 
-        .status-loading {
-            color: #d8d8d8;
+        @media (max-width: 1400px) {
+            .side-image img { width: 170px; }
+            .side-left-2 { left: 120px; }
         }
-
-        .status-error {
-            color: #ff8f8f;
-            font-weight: bold;
+        @media (max-width: 1100px) {
+            .side-image { display: none; }
         }
-
-        .status-ok {
-            color: #8fe29f;
-            font-weight: bold;
-        }
-
         @media (max-width: 640px) {
-            .login-card {
-                margin-top: 20px;
-            }
-
-            table, thead, tbody, th, td, tr {
-                display: block;
-            }
-
-            thead {
-                display: none;
-            }
-
+            .login-card { margin-top: 20px; }
+            table, thead, tbody, th, td, tr { display: block; }
+            thead { display: none; }
             tr {
                 border: 1px solid rgba(255,255,255,0.08);
                 border-radius: 12px;
@@ -280,12 +358,7 @@
                 margin-bottom: 10px;
                 background: rgba(10,10,10,0.45);
             }
-
-            td {
-                border: none;
-                padding: 6px 0;
-            }
-
+            td { border: none; padding: 6px 0; }
             td::before {
                 content: attr(data-label) " : ";
                 font-weight: bold;
@@ -295,6 +368,18 @@
     </style>
 </head>
 <body>
+    <div class="side-image side-left-1">
+        <img src="https://cdn.discordapp.com/attachments/1489704319623364688/1489704607369134311/IMG_1178.png?ex=69d16307&is=69d01187&hm=f5b3450de21a76aa33bd132110a2349c629149cf53e92c0ea15a3896f1012d95&" alt="Décoration gauche 1">
+    </div>
+
+    <div class="side-image side-left-2">
+        <img src="https://cdn.discordapp.com/attachments/1489704319623364688/1489704607679516913/IMG_1177.png?ex=69d16307&is=69d01187&hm=9daa9cc01ecde63cb492ea040ad1ab3A5zqsqA4mY21zHRJZCyZNqiaeSTJfq6Tj&" alt="Décoration gauche 2">
+    </div>
+
+    <div class="side-image side-right-1">
+        <img src="https://cdn.discordapp.com/attachments/1489704319623364688/1489704607985963058/IMG_1176.png?ex=69d16307&is=69d01187&hm=f000b88636db73e535543f776206f575de0c314d326e939ff406debf2149cbca&" alt="Décoration droite 1">
+    </div>
+
     <div class="container">
 
         <div id="loginView" class="card login-card">
@@ -764,3 +849,4 @@
     </script>
 </body>
 </html>
+rajoute a mon code se quil faut ppur que se soit lier direct que je le mette 
